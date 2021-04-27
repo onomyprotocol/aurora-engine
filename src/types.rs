@@ -13,8 +13,8 @@ use crate::sdk;
 pub type AccountId = String;
 pub type Balance = u128;
 pub type RawAddress = [u8; 20];
-pub type RawU256 = [u8; 32];
-pub type RawH256 = [u8; 32];
+pub type RawU256 = [u8; 32]; // Little-endian large integer type.
+pub type RawH256 = [u8; 32]; // Unformatted binary data of fixed length.
 pub type EthAddress = [u8; 20];
 pub type Gas = u64;
 pub type StorageUsage = u64;
@@ -60,6 +60,14 @@ pub enum ErrorKind {
     InvalidMetaTransactionMethodName,
     InvalidMetaTransactionFunctionArg,
     InvalidEcRecoverSignature,
+}
+
+/// Errors involving the nonce
+pub enum NonceError {
+    /// Attempted to increment the nonce, but overflow occurred
+    NonceOverflow,
+    /// Account nonce did not match the transaction nonce
+    IncorrectNonce,
 }
 
 pub type Result<T> = core::result::Result<T, ErrorKind>;
