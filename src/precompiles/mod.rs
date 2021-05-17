@@ -155,6 +155,20 @@ pub fn istanbul_precompiles(
     }
 }
 
+pub fn precompile_factory(
+    engine_context: &mut i32,
+) -> fn(Address, &[u8], Option<u64>, &Context) -> Option<PrecompileResult> {
+    |address: Address,
+     input: &[u8],
+     target_gas: Option<u64>,
+     context: &Context|
+     -> Option<PrecompileResult> {
+        *engine_context += 1;
+        // relevant code about precompiles here
+        None
+    }
+}
+
 /// Matches the address given to Berlin precompiles.
 #[allow(dead_code)]
 pub fn berlin_precompiles(
