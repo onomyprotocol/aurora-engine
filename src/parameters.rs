@@ -10,6 +10,7 @@ use crate::{
     types::{EthAddress, Proof, SdkUnwrap},
 };
 use evm::backend::Log;
+use serde::Deserialize;
 
 /// Borsh-encoded parameters for the `new` function.
 #[derive(BorshSerialize, BorshDeserialize)]
@@ -312,7 +313,7 @@ impl From<json::JsonValue> for StorageBalanceOfCallArgs {
 }
 
 /// storage_deposit eth-connector call args
-#[derive(BorshSerialize, BorshDeserialize)]
+#[derive(BorshSerialize, BorshDeserialize, Deserialize)]
 pub struct StorageDepositCallArgs {
     pub account_id: Option<AccountId>,
     pub registration_only: Option<bool>,
