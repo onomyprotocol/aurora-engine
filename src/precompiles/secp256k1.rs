@@ -19,37 +19,8 @@ mod consts {
 pub(crate) fn ecrecover(hash: H256, signature: &[u8]) -> Result<Address, ExitError> {
     assert_eq!(signature.len(), 65);
 
-    #[cfg(feature = "testnet")]
-    return crate::sdk::ecrecover(hash, signature)
-        .map_err(|e| ExitError::Other(Borrowed(e.as_str())));
-
-    #[cfg(not(feature = "testnet"))]
-    internal_impl(hash, signature)
-}
-
-#[cfg(not(feature = "testnet"))]
-fn internal_impl(hash: H256, signature: &[u8]) -> Result<Address, ExitError> {
-    use sha3::Digest;
-
-    let hash = secp256k1::Message::parse_slice(hash.as_bytes()).unwrap();
-    let v = signature[64];
-    let signature = secp256k1::Signature::parse_slice(&signature[0..64]).unwrap();
-    let bit = match v {
-        0..=26 => v,
-        _ => v - 27,
-    };
-
-    if let Ok(recovery_id) = secp256k1::RecoveryId::parse(bit) {
-        if let Ok(public_key) = secp256k1::recover(&hash, &signature, &recovery_id) {
-            // recover returns a 65-byte key, but addresses come from the raw 64-byte key
-            let r = sha3::Keccak256::digest(&public_key.serialize()[1..]);
-            return Ok(Address::from_slice(&r[12..]));
-        }
-    }
-
-    Err(ExitError::Other(Borrowed(
-        crate::sdk::ECRecoverErr.as_str(),
-    )))
+    crate::sdk::ecrecover(hash, signature)
+        .map_err(|e| ExitError::Other(Borrowed(e.as_str())))
 }
 
 pub(super) struct ECRecover;
