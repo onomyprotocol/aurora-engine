@@ -118,12 +118,12 @@ impl From<DecoderError> for ParseTransactionError {
     }
 }
 
-impl AsRef<[u8]> for ParseTransactionError {
-    fn as_ref(&self) -> &[u8] {
+impl ParseTransactionError {
+    pub fn to_str(&self) -> &str {
         match self {
-            Self::UnknownTransactionType => b"ERR_UNKNOWN_TX_TYPE",
-            Self::ReservedSentinel => b"ERR_RESERVED_LEADING_TX_BYTE",
-            Self::RlpDecodeError(_) => b"ERR_TX_RLP_DECODE",
+            Self::UnknownTransactionType => "ERR_UNKNOWN_TX_TYPE",
+            Self::ReservedSentinel => "ERR_RESERVED_LEADING_TX_BYTE",
+            Self::RlpDecodeError(_) => "ERR_TX_RLP_DECODE",
         }
     }
 }

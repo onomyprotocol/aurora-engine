@@ -187,13 +187,13 @@ pub fn read_input() -> Vec<u8> {
 }
 
 #[cfg_attr(not(feature = "contract"), allow(dead_code))]
-pub(crate) fn read_input_borsh<T: BorshDeserialize>() -> Result<T, ArgParseErr> {
+pub(crate) fn read_input_borsh<T: BorshDeserialize>() -> Result<T, ArgParseError> {
     let bytes = read_input();
-    T::try_from_slice(&bytes).map_err(|_| ArgParseErr)
+    T::try_from_slice(&bytes).map_err(|_| ArgParseError)
 }
 
 #[cfg_attr(not(feature = "contract"), allow(dead_code))]
-pub(crate) fn read_input_arr20() -> Result<[u8; 20], IncorrectInputLength> {
+pub(crate) fn read_input_arr20() -> Result<[u8; 20], IncorrectInputLengthError> {
     unsafe {
         exports::input(INPUT_REGISTER_ID);
         if exports::register_len(INPUT_REGISTER_ID) == 20 {
@@ -201,7 +201,7 @@ pub(crate) fn read_input_arr20() -> Result<[u8; 20], IncorrectInputLength> {
             exports::read_register(INPUT_REGISTER_ID, bytes.as_ptr() as *const u64 as u64);
             Ok(bytes)
         } else {
-            Err(IncorrectInputLength)
+            Err(IncorrectInputLengthError)
         }
     }
 }
@@ -399,7 +399,7 @@ pub fn ripemd160(input: &[u8]) -> [u8; 20] {
 }
 
 /// Recover address from message hash and signature.
-pub fn ecrecover(hash: H256, signature: &[u8]) -> Result<crate::prelude::Address, ECRecoverErr> {
+pub fn ecrecover(hash: H256, signature: &[u8]) -> Result<crate::prelude::Address, ECRecoverError> {
     unsafe {
         let hash_ptr = hash.as_ptr() as u64;
         let sig_ptr = signature.as_ptr() as u64;
@@ -425,7 +425,7 @@ pub fn ecrecover(hash: H256, signature: &[u8]) -> Result<crate::prelude::Address
                 &keccak_hash_bytes[12..],
             ))
         } else {
-            Err(ECRecoverErr)
+            Err(ECRecoverError)
         }
     }
 }
@@ -610,17 +610,19 @@ pub fn storage_has_key(key: &[u8]) -> bool {
     unsafe { exports::storage_has_key(key.len() as _, key.as_ptr() as _) == 1 }
 }
 
-pub(crate) struct IncorrectInputLength;
-impl AsRef<[u8]> for IncorrectInputLength {
-    fn as_ref(&self) -> &[u8] {
-        b"ERR_INCORRECT_INPUT_LENGTH"
+pub(crate) struct IncorrectInputLengthError;
+
+impl IncorrectInputLengthError {
+    pub fn to_str(&self) -> &str {
+        "ERR_INCORRECT_INPUT_LENGTH"
     }
 }
 
-pub(crate) struct ArgParseErr;
-impl AsRef<[u8]> for ArgParseErr {
-    fn as_ref(&self) -> &[u8] {
-        b"ERR_ARG_PARSE"
+pub(crate) struct ArgParseError;
+
+impl ArgParseError {
+    pub fn to_str(&self) -> &str {
+        "ERR_ARG_PARSE"
     }
 }
 
@@ -628,23 +630,20 @@ pub(crate) enum ReadU64Error {
     InvalidU64,
     MissingValue,
 }
-impl AsRef<[u8]> for ReadU64Error {
-    fn as_ref(&self) -> &[u8] {
+
+impl ReadU64Error {
+    pub fn to_str(&self) -> &str {
         match self {
-            Self::InvalidU64 => b"ERR_NOT_U64",
-            Self::MissingValue => b"ERR_U64_NOT_FOUND",
+            Self::InvalidU64 => "ERR_NOT_U64",
+            Self::MissingValue => "ERR_U64_NOT_FOUND",
         }
     }
 }
 
-pub struct ECRecoverErr;
-impl ECRecoverErr {
-    pub fn as_str(&self) -> &'static str {
+pub struct ECRecoverError;
+
+impl ECRecoverError {
+    pub fn to_str(&self) -> &str {
         "ERR_ECRECOVER"
-    }
-}
-impl AsRef<[u8]> for ECRecoverErr {
-    fn as_ref(&self) -> &[u8] {
-        self.as_str().as_bytes()
     }
 }

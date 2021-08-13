@@ -88,17 +88,15 @@ impl TransactionStatus {
             || *self == TransactionStatus::OutOfOffset
             || *self == TransactionStatus::CallTooDeep
     }
-}
 
-impl AsRef<[u8]> for TransactionStatus {
-    fn as_ref(&self) -> &[u8] {
+    fn to_str(&self) -> &str {
         match self {
-            Self::Succeed(_) => b"SUCCESS",
-            Self::Revert(_) => b"ERR_REVERT",
-            Self::OutOfFund => b"ERR_OUT_OF_FUNDS",
-            Self::OutOfGas => b"ERR_OUT_OF_GAS",
-            Self::OutOfOffset => b"ERR_OUT_OF_OFFSET",
-            Self::CallTooDeep => b"ERR_CALL_TOO_DEEP",
+            Self::Succeed(_) => "SUCCESS",
+            Self::Revert(_) => "ERR_REVERT",
+            Self::OutOfFund => "ERR_OUT_OF_FUNDS",
+            Self::OutOfGas => "ERR_OUT_OF_GAS",
+            Self::OutOfOffset => "ERR_OUT_OF_OFFSET",
+            Self::CallTooDeep => "ERR_CALL_TOO_DEEP",
         }
     }
 }

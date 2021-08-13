@@ -120,11 +120,11 @@ pub enum ValidationError {
     WrongEthAddress,
 }
 
-impl AsRef<[u8]> for ValidationError {
-    fn as_ref(&self) -> &[u8] {
+impl ValidationError {
+    pub fn to_str(&self) -> &str {
         match self {
-            Self::EthAddressFailedDecode => b"FAILED_DECODE_ETH_ADDRESS",
-            Self::WrongEthAddress => b"WRONG_ETH_ADDRESS",
+            Self::EthAddressFailedDecode => "FAILED_DECODE_ETH_ADDRESS",
+            Self::WrongEthAddress => "WRONG_ETH_ADDRESS",
         }
     }
 }

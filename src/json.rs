@@ -1,9 +1,9 @@
 use super::prelude::*;
 
+#[cfg(test)]
+use crate::prelude::BTreeMap;
 use core::convert::From;
 use rjson::{Array, Null, Object, Value};
-#[cfg(test)]
-use std::collections::BTreeMap;
 
 #[derive(PartialEq)]
 pub enum JsonValue {
@@ -31,10 +31,36 @@ pub enum JsonError {
     OutOfRange(JsonOutOfRangeError),
 }
 
+impl JsonError {
+    pub fn to_str(&self) -> &str {
+        match self {
+            Self::NotJsonType => "ERR_NOT_A_JSON_TYPE",
+            Self::MissingValue => "ERR_JSON_MISSING_VALUE",
+            Self::InvalidU8 => "ERR_FAILED_PARSE_U8",
+            Self::InvalidU64 => "ERR_FAILED_PARSE_U64",
+            Self::InvalidU128 => "ERR_FAILED_PARSE_U128",
+            Self::InvalidBool => "ERR_FAILED_PARSE_BOOL",
+            Self::InvalidString => "ERR_FAILED_PARSE_STRING",
+            Self::InvalidArray => "ERR_FAILED_PARSE_ARRAY",
+            Self::ExpectedStringGotNumber => "ERR_EXPECTED_STRING_GOT_NUMBER",
+            Self::OutOfRange(err) => err.to_str(),
+        }
+    }
+}
+
 #[derive(Debug, Ord, PartialOrd, Eq, PartialEq)]
 pub enum JsonOutOfRangeError {
     OutOfRangeU8,
     OutOfRangeU128,
+}
+
+impl JsonOutOfRangeError {
+    pub fn to_str(&self) -> &str {
+        match self {
+            Self::OutOfRangeU8 => "ERR_OUT_OF_RANGE_U8",
+            Self::OutOfRangeU128 => "ERR_OUT_OF_RANGE_U128",
+        }
+    }
 }
 
 #[derive(Debug, Ord, PartialOrd, Eq, PartialEq)]
@@ -98,32 +124,6 @@ impl JsonValue {
                 }
             }
             _ => Err(JsonError::InvalidU8),
-        }
-    }
-}
-
-impl AsRef<[u8]> for JsonError {
-    fn as_ref(&self) -> &[u8] {
-        match self {
-            Self::NotJsonType => b"ERR_NOT_A_JSON_TYPE",
-            Self::MissingValue => b"ERR_JSON_MISSING_VALUE",
-            Self::InvalidU8 => b"ERR_FAILED_PARSE_U8",
-            Self::InvalidU64 => b"ERR_FAILED_PARSE_U64",
-            Self::InvalidU128 => b"ERR_FAILED_PARSE_U128",
-            Self::InvalidBool => b"ERR_FAILED_PARSE_BOOL",
-            Self::InvalidString => b"ERR_FAILED_PARSE_STRING",
-            Self::InvalidArray => b"ERR_FAILED_PARSE_ARRAY",
-            Self::ExpectedStringGotNumber => b"ERR_EXPECTED_STRING_GOT_NUMBER",
-            Self::OutOfRange(err) => err.as_ref(),
-        }
-    }
-}
-
-impl AsRef<[u8]> for JsonOutOfRangeError {
-    fn as_ref(&self) -> &[u8] {
-        match self {
-            Self::OutOfRangeU8 => b"ERR_OUT_OF_RANGE_U8",
-            Self::OutOfRangeU128 => b"ERR_OUT_OF_RANGE_U128",
         }
     }
 }

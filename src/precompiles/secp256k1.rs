@@ -48,7 +48,7 @@ fn internal_impl(hash: H256, signature: &[u8]) -> Result<Address, ExitError> {
     }
 
     Err(ExitError::Other(Borrowed(
-        crate::sdk::ECRecoverErr.as_str(),
+        crate::sdk::ECRecoverError.as_str(),
     )))
 }
 

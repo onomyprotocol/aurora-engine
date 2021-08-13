@@ -62,15 +62,9 @@ pub struct EngineError {
     pub gas_used: u64,
 }
 
-impl AsRef<str> for EngineError {
-    fn as_ref(&self) -> &str {
+impl EngineError {
+    fn to_str(&self) -> &str {
         self.kind.to_str()
-    }
-}
-
-impl AsRef<[u8]> for EngineError {
-    fn as_ref(&self) -> &[u8] {
-        self.kind.to_str().as_bytes()
     }
 }
 
@@ -118,18 +112,6 @@ impl EngineErrorKind {
     }
 }
 
-impl AsRef<str> for EngineErrorKind {
-    fn as_ref(&self) -> &str {
-        self.to_str()
-    }
-}
-
-impl AsRef<[u8]> for EngineErrorKind {
-    fn as_ref(&self) -> &[u8] {
-        self.to_str().as_bytes()
-    }
-}
-
 impl From<ExitError> for EngineErrorKind {
     fn from(e: ExitError) -> Self {
         EngineErrorKind::EvmError(e)
@@ -166,9 +148,10 @@ impl ExitIntoResult for ExitReason {
 }
 
 pub struct BalanceOverflow;
-impl AsRef<[u8]> for BalanceOverflow {
-    fn as_ref(&self) -> &[u8] {
-        b"ERR_BALANCE_OVERFLOW"
+
+impl BalanceOverflow {
+    pub fn to_str(&self) -> &str {
+        "ERR_BALANCE_OVERFLOW"
     }
 }
 
@@ -181,15 +164,17 @@ pub enum GasPaymentError {
     /// Not enough balance for account to cover the gas cost
     OutOfFund,
 }
-impl AsRef<[u8]> for GasPaymentError {
-    fn as_ref(&self) -> &[u8] {
+
+impl GasPaymentError {
+    pub fn to_str(&self) -> &str {
         match self {
-            Self::BalanceOverflow(overflow) => overflow.as_ref(),
-            Self::EthAmountOverflow => b"ERR_GAS_ETH_AMOUNT_OVERFLOW",
-            Self::OutOfFund => b"ERR_OUT_OF_FUND",
+            Self::BalanceOverflow(overflow) => overflow.to_str(),
+            Self::EthAmountOverflow => "ERR_GAS_ETH_AMOUNT_OVERFLOW",
+            Self::OutOfFund => "ERR_OUT_OF_FUND",
         }
     }
 }
+
 impl From<BalanceOverflow> for GasPaymentError {
     fn from(overflow: BalanceOverflow) -> Self {
         Self::BalanceOverflow(overflow)
@@ -213,12 +198,6 @@ impl GetErc20FromNep141Error {
     }
 }
 
-impl AsRef<[u8]> for GetErc20FromNep141Error {
-    fn as_ref(&self) -> &[u8] {
-        self.to_str().as_bytes()
-    }
-}
-
 #[derive(Debug)]
 pub enum RegisterTokenError {
     InvalidNep141AccountId,
@@ -234,23 +213,17 @@ impl RegisterTokenError {
     }
 }
 
-impl AsRef<[u8]> for RegisterTokenError {
-    fn as_ref(&self) -> &[u8] {
-        self.to_str().as_bytes()
-    }
-}
-
 #[derive(Debug)]
 pub enum EngineStateError {
     NotFound,
     DeserializationFailed,
 }
 
-impl AsRef<[u8]> for EngineStateError {
-    fn as_ref(&self) -> &[u8] {
+impl EngineStateError {
+    pub fn to_str(&self) -> &str {
         match self {
-            Self::NotFound => b"ERR_STATE_NOT_FOUND",
-            Self::DeserializationFailed => b"ERR_STATE_CORRUPTED",
+            Self::NotFound => "ERR_STATE_NOT_FOUND",
+            Self::DeserializationFailed => "ERR_STATE_CORRUPTED",
         }
     }
 }
