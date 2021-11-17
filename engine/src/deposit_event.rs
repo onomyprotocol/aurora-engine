@@ -1,6 +1,6 @@
 use crate::log_entry::LogEntry;
-use crate::prelude::{vec, EthAddress, String, ToString, Vec, U256};
 use ethabi::{Event, EventParam, Hash, Log, ParamType, RawLog};
+use aurora_engine_types::{EthAddress, U256};
 
 pub const DEPOSITED_EVENT: &str = "Deposited";
 

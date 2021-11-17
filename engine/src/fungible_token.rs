@@ -1,17 +1,16 @@
+use borsh::BorshDeserialize;
 use crate::connector::NO_DEPOSIT;
 use crate::engine;
 use crate::json::{parse_json, JsonValue};
 use crate::parameters::{NEP141FtOnTransferArgs, ResolveTransferCallArgs, StorageBalance};
-use crate::prelude::account_id::AccountId;
-use crate::prelude::{
-    sdk, storage, vec, Address, BTreeMap, Balance, BorshDeserialize, BorshSerialize, EthAddress,
-    Gas, PromiseResult, StorageBalanceBounds, StorageUsage, String, ToString, TryInto, Vec, Wei,
-    U256,
-};
 use aurora_engine_sdk::io::{StorageIntermediate, IO};
+use aurora_engine_types::{Balance, BTreeMap, EthAddress, Gas, StorageUsage};
+use aurora_engine_types::account_id::AccountId;
 use aurora_engine_types::parameters::{
     PromiseAction, PromiseBatchAction, PromiseCreateArgs, PromiseWithCallbackArgs,
 };
+use crate::meta_parsing::ArgType::Address;
+use crate::prelude::sdk;
 
 const GAS_FOR_RESOLVE_TRANSFER: Gas = 5_000_000_000_000;
 const GAS_FOR_FT_ON_TRANSFER: Gas = 10_000_000_000_000;
@@ -137,7 +136,7 @@ impl<I: IO + Copy> FungibleTokenOps<I> {
     /// Balance of ETH (ETH on Aurora)
     pub fn internal_unwrap_balance_of_eth_on_aurora(&self, address: EthAddress) -> Balance {
         engine::get_balance(&self.io, &Address(address))
-            .raw()
+            .into_raw()
             .as_u128()
     }
 

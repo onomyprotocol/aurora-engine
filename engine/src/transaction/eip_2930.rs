@@ -1,6 +1,8 @@
+use ethabi::ethereum_types::Address;
 use crate::prelude::precompiles::secp256k1::ecrecover;
-use crate::prelude::{sdk, Address, Vec, Wei, H256, U256};
+use crate::prelude::{sdk};
 use rlp::{Decodable, DecoderError, Encodable, Rlp, RlpStream};
+use aurora_engine_types::{H256, U256, Wei};
 
 /// Type indicator (per EIP-2718) for access list transactions
 pub const TYPE_BYTE: u8 = 0x01;
@@ -57,7 +59,7 @@ impl Transaction2930 {
             None => s.append(&""),
             Some(address) => s.append(address),
         };
-        s.append(&self.value.raw());
+        s.append(&self.value.into_raw());
         s.append(&self.data);
         s.begin_list(self.access_list.len());
         for tuple in self.access_list.iter() {

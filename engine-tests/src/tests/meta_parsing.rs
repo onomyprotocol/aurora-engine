@@ -1,9 +1,9 @@
 use {
-    crate::meta_parsing::{near_erc712_domain, parse_meta_call, prepare_meta_call_args},
-    crate::prelude::keccak,
     crate::prelude::{u256_to_arr, InternalMetaCallArgs, Wei},
     crate::prelude::{Address, U256},
+    aurora_engine::meta_parsing::{near_erc712_domain, parse_meta_call, prepare_meta_call_args},
     aurora_engine::parameters::MetaCallArgs,
+    aurora_engine_sdk::keccak,
     borsh::BorshSerialize,
     near_crypto::{InMemorySigner, KeyType, PublicKey, Signature, Signer},
 };
@@ -48,10 +48,10 @@ fn encode_meta_call_function_args(
                 // Add 27 to align eth-sig-util signature format
                 v: 27,
                 nonce: u256_to_arr(&nonce),
-                fee_amount: fee_amount.to_bytes(),
+                fee_amount: fee_amount.into_bytes(),
                 fee_address: fee_address.0,
                 contract_address: contract_address.0,
-                value: value.to_bytes(),
+                value: value.into_bytes(),
                 method_def: method_def.to_string(),
                 args,
             }

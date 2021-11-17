@@ -1,7 +1,7 @@
-use crate::account_id::*;
-use crate::types::*;
-use crate::*;
+use std::io::Write;
 use borsh::{BorshDeserialize, BorshSerialize};
+use crate::account_id::AccountId;
+use crate::{Balance, EthAddress, U256};
 
 #[must_use]
 #[derive(Debug, BorshSerialize, BorshDeserialize)]
@@ -62,5 +62,11 @@ pub struct WithdrawCallArgs {
 pub struct RefundCallArgs {
     pub recipient_address: EthAddress,
     pub erc20_address: Option<EthAddress>,
-    pub amount: RawU256,
+    pub amount: U256,
 }
+
+// impl BorshSerialize for RefundCallArgs {
+//     fn serialize<W: Write>(&self, writer: &mut W) -> std::io::Result<()> {
+//         todo!()
+//     }
+// }

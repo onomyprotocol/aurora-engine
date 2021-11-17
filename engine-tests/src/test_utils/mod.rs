@@ -225,7 +225,7 @@ impl AuroraRunner {
             crate::prelude::storage::KeyPrefix::Balance,
             &address,
         );
-        let balance_value = init_balance.to_bytes();
+        let balance_value = init_balance.into_bytes();
 
         let nonce_key = crate::prelude::storage::address_to_key(
             crate::prelude::storage::KeyPrefix::Nonce,
@@ -250,7 +250,7 @@ impl AuroraRunner {
                 .get(&ft_key)
                 .map(|bytes| FungibleToken::try_from_slice(&bytes).unwrap())
                 .unwrap_or_default();
-            current_ft.total_eth_supply_on_aurora += init_balance.raw().as_u128();
+            current_ft.total_eth_supply_on_aurora += init_balance.into_raw().as_u128();
             current_ft
         };
 
@@ -572,7 +572,7 @@ pub(crate) fn as_view_call(tx: TransactionLegacy, sender: Address) -> ViewCallAr
     ViewCallArgs {
         sender: sender.0,
         address: tx.to.unwrap().0,
-        amount: tx.value.to_bytes(),
+        amount: tx.value.into_bytes(),
         input: tx.data,
     }
 }

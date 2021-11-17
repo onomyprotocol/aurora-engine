@@ -1,4 +1,4 @@
-use crate::prelude::{Address, Balance, RawAddress, TryInto, Wei, WeiU256, U256};
+use crate::prelude::{Address, Balance, EthAddress, TryInto, Wei, U256};
 use crate::test_utils;
 use crate::test_utils::{create_eth_transaction, origin, AuroraRunner};
 use aurora_engine::parameters::{CallArgs, FunctionCallArgsV2, SubmitResult};
@@ -61,7 +61,7 @@ fn create_ethereum_address() -> Address {
 
 pub struct EthereumAddress {
     pub secret_key: SecretKey,
-    pub address: RawAddress,
+    pub address: EthAddress,
 }
 
 impl test_utils::AuroraRunner {
@@ -91,13 +91,13 @@ impl test_utils::AuroraRunner {
         CallResult { outcome, error }
     }
 
-    pub fn evm_call(&mut self, contract: RawAddress, input: Vec<u8>, origin: String) -> CallResult {
+    pub fn evm_call(&mut self, contract: EthAddress, input: Vec<u8>, origin: String) -> CallResult {
         self.make_call(
             "call",
             origin,
             CallArgs::V2(FunctionCallArgsV2 {
                 contract,
-                value: WeiU256::default(),
+                value: Wei::zero(),
                 input,
             })
             .try_to_vec()
@@ -109,7 +109,7 @@ impl test_utils::AuroraRunner {
         self.make_call("submit", origin, rlp::encode(&input).to_vec())
     }
 
-    pub fn deploy_erc20_token(&mut self, nep141: &String) -> RawAddress {
+    pub fn deploy_erc20_token(&mut self, nep141: &String) -> EthAddress {
         let result = self.make_call("deploy_erc20_token", origin(), nep141.try_to_vec().unwrap());
 
         result.check_ok();
@@ -131,7 +131,7 @@ impl test_utils::AuroraRunner {
         }
     }
 
-    pub fn balance_of(&mut self, token: RawAddress, target: RawAddress, origin: String) -> U256 {
+    pub fn balance_of(&mut self, token: EthAddress, target: EthAddress, origin: String) -> U256 {
         let input = build_input("balanceOf(address)", &[Token::Address(target.into())]);
         let result = self.evm_call(token, input, origin);
         result.check_ok();
@@ -141,8 +141,8 @@ impl test_utils::AuroraRunner {
 
     pub fn mint(
         &mut self,
-        token: RawAddress,
-        target: RawAddress,
+        token: EthAddress,
+        target: EthAddress,
         amount: u64,
         origin: String,
     ) -> CallResult {
@@ -159,7 +159,7 @@ impl test_utils::AuroraRunner {
     }
 
     #[allow(dead_code)]
-    pub fn admin(&mut self, token: RawAddress, origin: String) -> CallResult {
+    pub fn admin(&mut self, token: EthAddress, origin: String) -> CallResult {
         let input = build_input("admin()", &[]);
         let result = self.evm_call(token, input, origin);
         result.check_ok();
@@ -168,9 +168,9 @@ impl test_utils::AuroraRunner {
 
     pub fn transfer_erc20(
         &mut self,
-        token: RawAddress,
+        token: EthAddress,
         sender: SecretKey,
-        receiver: RawAddress,
+        receiver: EthAddress,
         amount: u64,
         origin: String,
     ) -> CallResult {
@@ -329,7 +329,7 @@ fn test_relayer_charge_fee() {
     let recipient_balance_end = runner.get_balance(recipient.into());
     assert_eq!(
         recipient_balance_end,
-        Wei::new_u64(INITIAL_BALANCE.raw().as_u64() - fee)
+        Wei::new_u64(INITIAL_BALANCE.into_raw().as_u64() - fee)
     );
     let relayer_balance = runner.get_balance(relayer);
     assert_eq!(relayer_balance, Wei::new_u64(fee));
@@ -386,7 +386,7 @@ fn test_transfer_erc20_token() {
 // Note: `AuroraRunner` is not suitable for these tests because
 // it does not execute promises; but `near-sdk-sim` does.
 mod sim_tests {
-    use crate::prelude::{types::Wei, Address, WeiU256, U256};
+    use crate::prelude::{types::Wei, Address, U256};
     use crate::test_utils;
     use crate::test_utils::erc20::{ERC20Constructor, ERC20};
     use crate::test_utils::exit_precompile::TesterConstructor;
@@ -715,7 +715,7 @@ mod sim_tests {
         );
         let call_args = CallArgs::V2(FunctionCallArgsV2 {
             contract: erc20.0.address.0,
-            value: WeiU256::default(),
+            value: Wei::zero(),
             input,
         });
         source
@@ -755,7 +755,7 @@ mod sim_tests {
         let mint_tx = erc20.mint(dest, amount.into(), 0.into());
         let call_args = CallArgs::V2(FunctionCallArgsV2 {
             contract: erc20.0.address.0,
-            value: WeiU256::default(),
+            value: Wei::zero(),
             input: mint_tx.data,
         });
         aurora
@@ -786,7 +786,7 @@ mod sim_tests {
         let balance_tx = erc20.balance_of(address, 0.into());
         let call_args = CallArgs::V2(FunctionCallArgsV2 {
             contract: erc20.0.address.0,
-            value: WeiU256::default(),
+            value: Wei::zero(),
             input: balance_tx.data,
         });
         let result = aurora.call("call", &call_args.try_to_vec().unwrap());

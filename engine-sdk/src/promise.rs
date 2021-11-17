@@ -1,7 +1,7 @@
 use aurora_engine_types::parameters::{
     PromiseBatchAction, PromiseCreateArgs, PromiseWithCallbackArgs,
 };
-use aurora_engine_types::types::PromiseResult;
+use aurora_engine_types::PromiseResult;
 
 #[derive(Debug, Eq, PartialEq, Copy, Clone)]
 pub struct PromiseId(u64);

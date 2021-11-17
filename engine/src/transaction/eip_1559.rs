@@ -1,9 +1,8 @@
 use crate::prelude::precompiles::secp256k1::ecrecover;
-use crate::prelude::{Vec, U256};
 use crate::transaction::eip_2930::AccessTuple;
-use aurora_engine_types::types::Wei;
 use ethabi::Address;
 use rlp::{Decodable, DecoderError, Encodable, Rlp, RlpStream};
+use aurora_engine_types::Wei;
 
 /// Type indicator (per EIP-1559)
 pub const TYPE_BYTE: u8 = 0x02;

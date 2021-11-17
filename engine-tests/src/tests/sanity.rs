@@ -641,7 +641,7 @@ fn test_eth_transfer_insufficient_balance_sim() {
     );
     assert_eq!(
         query_address_sim(&address, "get_balance", &aurora),
-        INITIAL_BALANCE.raw(),
+        INITIAL_BALANCE.into_raw(),
     );
 }
 
@@ -671,7 +671,7 @@ fn test_eth_transfer_charging_gas_not_enough_balance_sim() {
     );
     assert_eq!(
         query_address_sim(&address, "get_balance", &aurora),
-        INITIAL_BALANCE.raw(),
+        INITIAL_BALANCE.into_raw(),
     );
 }
 
@@ -680,7 +680,7 @@ fn initialize_evm_sim() -> (state_migration::AuroraAccount, test_utils::Signer, 
     let signer = test_utils::Signer::random();
     let address = test_utils::address_from_secret_key(&signer.secret_key);
 
-    let args = (address.0, INITIAL_NONCE, INITIAL_BALANCE.raw().low_u64());
+    let args = (address.0, INITIAL_NONCE, INITIAL_BALANCE.into_raw().low_u64());
     aurora
         .call("mint_account", &args.try_to_vec().unwrap())
         .assert_success();
@@ -692,7 +692,7 @@ fn initialize_evm_sim() -> (state_migration::AuroraAccount, test_utils::Signer, 
     );
     assert_eq!(
         query_address_sim(&address, "get_balance", &aurora),
-        INITIAL_BALANCE.raw(),
+        INITIAL_BALANCE.into_raw(),
     );
 
     (aurora, signer, address)

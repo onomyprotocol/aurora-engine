@@ -200,7 +200,7 @@ fn withdraw_eth() {
         },
         ethabi::LogParam {
             name: "amount".to_string(),
-            value: ethabi::Token::Uint(amount.raw()),
+            value: ethabi::Token::Uint(amount.into_raw()),
         },
     ];
     let exit_events = parse_exit_events(result, &schema);
@@ -219,7 +219,7 @@ fn withdraw_eth() {
     };
     expected_event[3] = ethabi::LogParam {
         name: "amount".to_string(),
-        value: ethabi::Token::Uint(amount.raw()),
+        value: ethabi::Token::Uint(amount.into_raw()),
     };
     let schema = aurora_engine_precompiles::native::events::exit_to_eth_schema();
     let exit_events = parse_exit_events(result, &schema);

@@ -1,5 +1,6 @@
 use crate::parameters::{CallArgs, NEP141FtOnTransferArgs, ResultLog, SubmitResult, ViewCallArgs};
 use core::mem;
+use ethabi::Address;
 use evm::backend::{Apply, ApplyBackend, Backend, Basic, Log};
 use evm::executor;
 use evm::{Config, CreateScheme, ExitError, ExitFatal, ExitReason};
@@ -9,15 +10,12 @@ use crate::map::BijectionMap;
 use aurora_engine_sdk::env::Env;
 use aurora_engine_sdk::io::{StorageIntermediate, IO};
 use aurora_engine_sdk::promise::{PromiseHandler, PromiseId};
+use aurora_engine_types::account_id::AccountId;
+use aurora_engine_types::{H256, TryFrom, U256, Wei};
 
 use crate::parameters::{NewCallArgs, TransactionStatus};
 use crate::prelude::precompiles::native::{ExitToEthereum, ExitToNear};
 use crate::prelude::precompiles::Precompiles;
-use crate::prelude::{
-    address_to_key, bytes_to_key, sdk, storage_to_key, u256_to_arr, AccountId, Address,
-    BorshDeserialize, BorshSerialize, KeyPrefix, PromiseArgs, PromiseCreateArgs, TryFrom, TryInto,
-    Vec, Wei, ERC20_MINT_SELECTOR, H256, U256,
-};
 use crate::transaction::NormalizedEthTransaction;
 
 /// Used as the first byte in the concatenation of data used to compute the blockhash.
@@ -455,7 +453,7 @@ impl<'env, I: IO + Copy, E: Env> Engine<'env, I, E> {
         let mut executor = executor_params.make_executor(self);
         let address = executor.create_address(CreateScheme::Legacy { caller: origin });
         let (exit_reason, result) = (
-            executor.transact_create(origin, value.raw(), input, gas_limit, access_list),
+            executor.transact_create(origin, value.into_raw(), input, gas_limit, access_list),
             address,
         );
 
@@ -529,7 +527,7 @@ impl<'env, I: IO + Copy, E: Env> Engine<'env, I, E> {
         let executor_params = StackExecutorParams::new(gas_limit, self.current_account_id.clone());
         let mut executor = executor_params.make_executor(self);
         let (exit_reason, result) =
-            executor.transact_call(origin, contract, value.raw(), input, gas_limit, access_list);
+            executor.transact_call(origin, contract, value.into_raw(), input, gas_limit, access_list);
 
         let used_gas = executor.used_gas();
         let status = match exit_reason.into_result(result) {
@@ -568,7 +566,7 @@ impl<'env, I: IO + Copy, E: Env> Engine<'env, I, E> {
         let executor_params = StackExecutorParams::new(gas_limit, self.current_account_id.clone());
         let mut executor = executor_params.make_executor(self);
         let (status, result) =
-            executor.transact_call(origin, contract, value.raw(), input, gas_limit, Vec::new());
+            executor.transact_call(origin, contract, value.into_raw(), input, gas_limit, Vec::new());
         status.into_result(result)
     }
 
@@ -940,14 +938,14 @@ pub fn add_balance<I: IO>(
 pub fn set_balance<I: IO>(io: &mut I, address: &Address, balance: &Wei) {
     io.write_storage(
         &address_to_key(KeyPrefix::Balance, address),
-        &balance.to_bytes(),
+        &balance.into_bytes(),
     );
 }
 
 pub fn remove_balance<I: IO + Copy>(io: &mut I, address: &Address) {
     let balance = get_balance(io, address);
     // Apply changes for eth-conenctor
-    EthConnectorContract::get_instance(*io).internal_remove_eth(address, &balance.raw());
+    EthConnectorContract::get_instance(*io).internal_remove_eth(address, &balance.into_raw());
     io.remove_storage(&address_to_key(KeyPrefix::Balance, address));
 }
 
@@ -1192,7 +1190,7 @@ impl<'env, I: IO + Copy, E: Env> evm::backend::Backend for Engine<'env, I, E> {
     fn basic(&self, address: Address) -> Basic {
         Basic {
             nonce: get_nonce(&self.io, &address),
-            balance: get_balance(&self.io, &address).raw(),
+            balance: get_balance(&self.io, &address).into_raw(),
         }
     }
 

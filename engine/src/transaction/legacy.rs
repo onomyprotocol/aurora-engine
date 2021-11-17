@@ -1,6 +1,8 @@
+use ethabi::ethereum_types::Address;
 use crate::prelude::precompiles::secp256k1::ecrecover;
-use crate::prelude::{sdk, Address, Vec, Wei, U256};
+use crate::prelude::{sdk};
 use rlp::{Decodable, DecoderError, Encodable, Rlp, RlpStream};
+use aurora_engine_types::{TryInto, U256, Wei};
 
 #[derive(Debug, Eq, PartialEq, Clone)]
 pub struct TransactionLegacy {
@@ -28,7 +30,7 @@ impl TransactionLegacy {
             None => s.append(&""),
             Some(address) => s.append(address),
         };
-        s.append(&self.value.raw());
+        s.append(&self.value.into_raw());
         s.append(&self.data);
         if let Some(chain_id) = chain_id {
             s.append(&chain_id);
@@ -40,7 +42,6 @@ impl TransactionLegacy {
     /// Returns self.gas as a u64, or None if self.gas > u64::MAX
     #[allow(unused)]
     pub fn get_gas_limit(&self) -> Option<u64> {
-        use crate::prelude::TryInto;
         self.gas_limit.try_into().ok()
     }
 
@@ -108,7 +109,7 @@ impl Encodable for LegacyEthSignedTransaction {
             None => s.append(&""),
             Some(address) => s.append(address),
         };
-        s.append(&self.transaction.value.raw());
+        s.append(&self.transaction.value.into_raw());
         s.append(&self.transaction.data);
         s.append(&self.v);
         s.append(&self.r);
@@ -172,8 +173,8 @@ mod tests {
             tx.transaction,
             TransactionLegacy {
                 nonce: U256::zero(),
-                gas_price: U256::from(234567897654321u128),
-                gas_limit: U256::from(2000000u128),
+                gas_price: U256::new_u64(234567897654321u64),
+                gas_limit: U256::new_u64(2000000u64),
                 to: Some(address_from_arr(
                     &hex::decode("F0109fC8DF283027b6285cc889F5aA624EaC1F55").unwrap()
                 )),

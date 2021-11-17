@@ -65,6 +65,7 @@ pub unsafe fn on_alloc_error(_: core::alloc::Layout) -> ! {
 #[cfg(feature = "contract")]
 mod contract {
     use borsh::{BorshDeserialize, BorshSerialize};
+    use ethabi::ethereum_types::Address;
 
     use crate::connector::EthConnectorContract;
     use crate::engine::{self, current_address, Engine, EngineState, GasPaymentError};
@@ -82,18 +83,14 @@ mod contract {
     use aurora_engine_sdk::io::{StorageIntermediate, IO};
     use aurora_engine_sdk::near_runtime::Runtime;
     use aurora_engine_sdk::promise::PromiseHandler;
+    use aurora_engine_sdk::types::ExpectUtf8;
     use aurora_engine_types::account_id::AccountId;
+    use aurora_engine_types::{ERR_FAILED_PARSE, PromiseResult, TryFrom, U256, Wei};
 
     use crate::json::parse_json;
-    use crate::prelude::parameters::RefundCallArgs;
+    use crate::prelude::sdk;
     use crate::prelude::sdk::types::{
         near_account_to_evm_address, SdkExpect, SdkProcess, SdkUnwrap,
-    };
-    use crate::prelude::storage::{bytes_to_key, KeyPrefix};
-    use crate::prelude::types::{u256_to_arr, ERR_FAILED_PARSE};
-    use crate::prelude::{
-        sdk, vec, Address, PromiseResult, ToString, TryFrom, TryInto, Vec, Wei,
-        ERC20_MINT_SELECTOR, H160, H256, U256,
     };
     use crate::transaction::{EthTransactionKind, NormalizedEthTransaction};
 
@@ -253,7 +250,7 @@ mod contract {
 
         // Validate the chain ID, if provided inside the signature:
         if let Some(chain_id) = transaction.chain_id {
-            if U256::from(chain_id) != U256::from(state.chain_id) {
+            if U256::mew(chain_id) != U256::from_slice(&state.chain_id) {
                 sdk::panic_utf8(b"ERR_INVALID_CHAIN_ID");
             }
         }
@@ -596,7 +593,7 @@ mod contract {
         let mut io = Runtime;
         let address = io.read_input_arr20().sdk_unwrap();
         let balance = engine::get_balance(&io, &Address(address));
-        io.return_output(&balance.to_bytes())
+        io.return_output(&balance.into_bytes())
     }
 
     #[no_mangle]

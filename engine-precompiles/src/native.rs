@@ -10,7 +10,6 @@ use crate::prelude::{
 #[cfg(all(feature = "error_refund", feature = "contract"))]
 use crate::prelude::{
     parameters::{PromiseWithCallbackArgs, RefundCallArgs},
-    types,
 };
 
 use crate::prelude::Address;
@@ -23,7 +22,7 @@ use evm::{Context, ExitError};
 const ERR_TARGET_TOKEN_NOT_FOUND: &str = "Target token not found";
 
 mod costs {
-    use crate::prelude::types::Gas;
+    use aurora_engine_types::Gas;
 
     // TODO(#51): Determine the correct amount of gas
     pub(super) const EXIT_TO_NEAR_GAS: Gas = 0;
@@ -81,7 +80,7 @@ pub mod events {
 
     impl ExitToNear {
         pub fn encode(self) -> ethabi::RawLog {
-            let data = ethabi::encode(&[ethabi::Token::Int(self.amount)]);
+            let data = ethabi::encode(&[ethabi::Token::Int(self.amount.into_raw())]);
             let topics = vec![
                 EXIT_TO_NEAR_SIGNATURE,
                 encode_address(self.sender),
@@ -112,7 +111,7 @@ pub mod events {
 
     impl ExitToEth {
         pub fn encode(self) -> ethabi::RawLog {
-            let data = ethabi::encode(&[ethabi::Token::Int(self.amount)]);
+            let data = ethabi::encode(&[ethabi::Token::Int(self.amount.into_raw())]);
             let topics = vec![
                 EXIT_TO_ETH_SIGNATURE,
                 encode_address(self.sender),
@@ -303,7 +302,7 @@ impl Precompile for ExitToNear {
                             sender: context.caller,
                             erc20_address: events::ETH_ADDRESS,
                             dest: dest_account.to_string(),
-                            amount: context.apparent_value,
+                            amount: U256::new(context.apparent_value.0),
                         },
                     )
                 } else {
@@ -321,7 +320,7 @@ impl Precompile for ExitToNear {
                 //      amount (U256 big-endian bytes) - the amount that was burned
                 //      recipient_account_id (bytes) - the NEAR recipient account which will receive NEP-141 tokens
 
-                if context.apparent_value != U256::from(0) {
+                if U256::new(context.apparent_value.0) != U256::new_u64(0) {
                     return Err(ExitError::Other(Cow::from(
                         "ERR_ETH_ATTACHED_FOR_ERC20_EXIT",
                     )));
@@ -369,7 +368,7 @@ impl Precompile for ExitToNear {
         let refund_args = RefundCallArgs {
             recipient_address: refund_address.0,
             erc20_address,
-            amount: types::u256_to_arr(&exit_event.amount),
+            amount: exit_event.amount,
         };
         #[cfg(feature = "error_refund")]
         let refund_promise = PromiseCreateArgs {
@@ -503,7 +502,7 @@ impl Precompile for ExitToEthereum {
                         sender: context.caller,
                         erc20_address: events::ETH_ADDRESS,
                         dest: H160(recipient_address),
-                        amount: context.apparent_value,
+                        amount: U256::new(context.apparent_value.0),
                     },
                 )
             }
@@ -517,7 +516,7 @@ impl Precompile for ExitToEthereum {
                 //      amount (U256 big-endian bytes) - the amount that was burned
                 //      eth_recipient (20 bytes) - the address of recipient which will receive ETH on Ethereum
 
-                if context.apparent_value != U256::from(0) {
+                if U256::new(context.apparent_value.0) != U256::new_u64(0) {
                     return Err(ExitError::Other(Cow::from(
                         "ERR_ETH_ATTACHED_FOR_ERC20_EXIT",
                     )));

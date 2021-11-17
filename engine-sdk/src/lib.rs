@@ -3,7 +3,8 @@
 #![cfg_attr(not(feature = "std"), feature(alloc_error_handler))]
 #![cfg_attr(feature = "log", feature(panic_info_message))]
 
-use crate::prelude::{Address, H256, STORAGE_PRICE_PER_BYTE};
+use aurora_engine_types::STORAGE_PRICE_PER_BYTE;
+use crate::prelude::{Address, H256};
 pub use types::keccak;
 
 pub mod env;

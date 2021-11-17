@@ -1,9 +1,5 @@
 use crate::parameters::MetaCallArgs;
 use crate::prelude::precompiles::secp256k1::ecrecover;
-use crate::prelude::{
-    keccak, u256_to_arr, vec, Address, BorshDeserialize, Box, HashMap, InternalMetaCallArgs,
-    RawU256, String, ToOwned, ToString, Vec, Wei, H256, U256,
-};
 use ethabi::{encode, Token as ABIToken};
 use logos::Logos;
 use rlp::{Decodable, DecoderError, Rlp};
@@ -524,10 +520,10 @@ pub fn prepare_meta_call_args(
     bytes.extend_from_slice(keccak(types.as_bytes()).as_bytes());
     bytes.extend_from_slice(keccak(account_id).as_bytes());
     bytes.extend_from_slice(&u256_to_arr(&input.nonce));
-    bytes.extend_from_slice(&input.fee_amount.to_bytes());
+    bytes.extend_from_slice(&input.fee_amount.into_bytes());
     bytes.extend_from_slice(&encode_address(input.fee_address));
     bytes.extend_from_slice(&encode_address(input.contract_address));
-    bytes.extend_from_slice(&input.value.to_bytes());
+    bytes.extend_from_slice(&input.value.into_bytes());
 
     let methods = MethodAndTypes::parse(&method_def)?;
     let method_sig = method_signature(&methods);
