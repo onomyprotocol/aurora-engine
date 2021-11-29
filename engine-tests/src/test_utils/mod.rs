@@ -488,9 +488,9 @@ impl Default for AuroraRunner {
     fn default() -> Self {
         let aurora_account_id = "aurora".to_string();
         let evm_wasm_bytes = if cfg!(feature = "mainnet-test") {
-            std::fs::read("../bin/mainnet-development.wasm").unwrap()
+            std::fs::read("../bin/mainnet-debug.wasm").unwrap()
         } else if cfg!(feature = "testnet-test") {
-            std::fs::read("../bin/testnet-development.wasm").unwrap()
+            std::fs::read("../bin/testnet-debug.wasm").unwrap()
         } else {
             panic!("AuroraRunner requires mainnet-test or testnet-test feature enabled.")
         };
