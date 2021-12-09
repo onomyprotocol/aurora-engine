@@ -2,6 +2,7 @@ env_files = [
     { path = ".env/mainnet.env", profile = "mainnet" },
     { path = ".env/testnet.env", profile = "testnet" },
     { path = ".env/local.env", profile = "local" },
+    { path = ".env/custom.env", profile = "custom" },
     { path = ".env/local.env", profile = "development" },
 ]
 
@@ -171,7 +172,7 @@ category = "Build"
 run_task = "build-engine-flow"
 
 [tasks.engine-test]
-env = { "ACTUAL_FEATURES" = "${CARGO_FEATURES_TEST}", "ACTUAL_WASM" = "${TARGET_WASM_TEST}", "IS_RELEASE" = false, "TARGET_DIR" = "debug" }
+env = { "ACTUAL_FEATURES" = "${CARGO_FEATURES_TEST_BUILD}", "ACTUAL_WASM" = "${TARGET_WASM_TEST}", "RELEASE_ARG" = "--release", "IS_RELEASE" = false, "TARGET_DIR" = "release" }
 category = "Build"
 run_task = "build-engine-flow"
 
