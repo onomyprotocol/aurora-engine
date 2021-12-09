@@ -105,7 +105,7 @@ echo "    TARGET_WASM:          ${ACTUAL_WASM}"
 category = "Post"
 command = "cp"
 args = [
-    "target/wasm32-unknown-unknown/release/aurora_engine.wasm",
+    "target/wasm32-unknown-unknown/${TARGET_DIR}/aurora_engine.wasm",
     "bin/${ACTUAL_WASM}",
 ]
 
@@ -142,7 +142,7 @@ args = [
     "avoid-dev-deps",
 ]
 
-[tasks.build-flow]
+[tasks.build-engine-flow]
 category = "Build"
 dependencies = [
     "build-contracts",
@@ -152,25 +152,25 @@ dependencies = [
     "post-engine-build-env",
 ]
 
-[tasks.build]
-env = { "ACTUAL_FEATURES" = "${CARGO_FEATURES}", "ACTUAL_WASM" = "${TARGET_WASM}", "RELEASE_ARG" = "--release", "IS_RELEASE" = true }
+[tasks.engine]
+env = { "ACTUAL_FEATURES" = "${CARGO_FEATURES}", "ACTUAL_WASM" = "${TARGET_WASM_DEBUG}", "IS_RELEASE" = false, "TARGET_DIR" = "debug" }
 category = "Build"
-run_task = "build-flow"
+run_task = "build-engine-flow"
 
-[tasks.build-debug]
-env = { "ACTUAL_FEATURES" = "${CARGO_FEATURES_TEST}", "ACTUAL_WASM" = "${TARGET_WASM_DEBUG}", "IS_RELEASE" = false }
+[tasks.engine-release]
+env = { "ACTUAL_FEATURES" = "${CARGO_FEATURES}", "ACTUAL_WASM" = "${TARGET_WASM}", "RELEASE_ARG" = "--release", "IS_RELEASE" = true, "TARGET_DIR" = "release" }
 category = "Build"
-run_task = "build-flow"
+run_task = "build-engine-flow"
 
-[tasks.build-test]
-env = { "ACTUAL_FEATURES" = "${CARGO_FEATURES_TEST}", "ACTUAL_WASM" = "${TARGET_WASM_TEST}", "IS_RELEASE" = false }
+[tasks.engine-test]
+env = { "ACTUAL_FEATURES" = "${CARGO_FEATURES_TEST}", "ACTUAL_WASM" = "${TARGET_WASM_TEST}", "IS_RELEASE" = false, "TARGET_DIR" = "debug" }
 category = "Build"
-run_task = "build-flow"
+run_task = "build-engine-flow"
 
-[tasks.build-bully]
-env = { "ACTUAL_FEATURES" = "${CARGO_FEATURES_BULLY}", "ACTUAL_WASM" = "${TARGET_WASM_BULLY}", "IS_RELEASE" = false }
+[tasks.engine-bully]
+env = { "ACTUAL_FEATURES" = "${CARGO_FEATURES_BULLY}", "ACTUAL_WASM" = "${TARGET_WASM_BULLY}", "IS_RELEASE" = false, "TARGET_DIR" = "debug" }
 category = "Build"
-run_task = "build-flow"
+run_task = "build-engine-flow"
 
 [tasks.build-all]
 category = "Build"
