@@ -25,23 +25,29 @@ args = [
     "${SWEEP_DAYS}",
 ]
 
-[tasks.cargo-clean]
+[tasks.clean-cargo]
 category = "Cleanup"
 command = "${CARGO}"
 args = ["clean"]
 
-[tasks.file-clean]
+[tasks.clean-contracts]
+category = "Cleanup"
+script = '''
+rm -Rf etc/eth-contracts/res
+'''
+
+[tasks.clean-bin]
 category = "Cleanup"
 script = '''
 rm -Rf bin
-rm -Rf etc/eth-contracts/res
 '''
 
 [tasks.clean-flow]
 category = "Cleanup"
 dependencies = [
-    "cargo-clean",
-    "file-clean",
+    "clean-cargo",
+    "clean-contracts",
+    "clean-bin",
 ]
 
 [tasks.clean]
@@ -68,7 +74,7 @@ args = [
     "warnings",
 ]
 
-[tasks.fmt-check]
+[tasks.check-fmt]
 category = "Check"
 command = "${CARGO}"
 args = [
@@ -77,7 +83,7 @@ args = [
     "--check",
 ]
 
-[tasks.yarn-check]
+[tasks.check-contracts]
 category = "Check"
 script = '''
 cd etc/eth-contracts
@@ -88,7 +94,8 @@ yarn lint
 [tasks.check]
 category = "Check"
 dependencies = [
-    "fmt-check",
+    "check-contracts",
+    "check-fmt",
     "clippy",
 ]
 
@@ -99,6 +106,7 @@ echo "Environment:"
 echo "    IS_RELEASE:           ${IS_RELEASE}"
 echo "    CARGO_FEATURES:       ${ACTUAL_FEATURES}"
 echo "    TARGET_WASM:          ${ACTUAL_WASM}"
+echo "    TARGET_DIR:           ${TARGET_DIR}"
 '''
 
 [tasks.copy-engine-build]
@@ -117,7 +125,7 @@ args = [
     "bin",
 ]
 
-[tasks.build-contracts]
+[tasks.contracts]
 category = "Build"
 script = '''
 cd etc/eth-contracts
@@ -125,7 +133,7 @@ yarn
 yarn build
 '''
 
-[tasks.build-engine]
+[tasks.cargo-build-engine]
 category = "Build"
 command = "${CARGO}"
 args = [
@@ -145,8 +153,8 @@ args = [
 [tasks.build-engine-flow]
 category = "Build"
 dependencies = [
-    "build-contracts",
-    "build-engine",
+    "contracts",
+    "cargo-build-engine",
     "make-bin-directory",
     "copy-engine-build",
     "post-engine-build-env",
@@ -172,13 +180,14 @@ env = { "ACTUAL_FEATURES" = "${CARGO_FEATURES_BULLY}", "ACTUAL_WASM" = "${TARGET
 category = "Build"
 run_task = "build-engine-flow"
 
-[tasks.build-all]
+[tasks.build]
 category = "Build"
 dependencies = [
-    "build",
-    "build-debug",
-    "build-test",
-    "build-bully",
+    "contracts",
+    "engine",
+    "engine-release",
+    "engine-test",
+    "engine-bully",
 ]
 
 [tasks.test-contracts]
@@ -189,7 +198,7 @@ yarn
 yarn test
 '''
 
-[tasks.test-engine]
+[tasks.test-workspace]
 category = "Test"
 command = "${CARGO}"
 args = [
@@ -201,9 +210,9 @@ args = [
 [tasks.test-flow]
 category = "Test"
 dependencies = [
-    "build-test",
+    "engine-test",
     "test-contracts",
-    "test-engine",
+    "test-workspace",
 ]
 
 [tasks.test]
