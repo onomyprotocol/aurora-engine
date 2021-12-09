@@ -8,11 +8,8 @@ on:
 
 name: Tests
 jobs:
-  test-mainnet:
-    strategy:
-      matrix:
-        network: [ mainnet, testnet ]
-    name: Test ${{ matrix.network }}
+  test:
+    name: Test mainnet
     runs-on: [self-hosted, heavy]
     steps:
       - name: Clone the repository
@@ -28,8 +25,12 @@ jobs:
           cache-util restore aurora-engine-target@generic@${{ hashFiles('**/Cargo.lock') }}:target
       - name: List directories
         run: ls -la target/wasm32-unknown-unknown/release && ls -la
-      - name: Test
-        run: cargo make --profile ${{ matrix.network }} test
+      - name: Build contracts
+        run: cargo make contracts
+      - name: Test mainnet
+        run: cargo make --profile mainnet test
+      - name: Test testnet
+        run: cargo make --profile testnet test
       - name: Save cache
         run: |
           cache-util save cargo_git cargo_registry sccache yarn_cache

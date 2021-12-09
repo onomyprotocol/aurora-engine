@@ -20,7 +20,7 @@ jobs:
           command: install
           args: --debug cargo-make
       - name: Run cargo fmt
-        run: cargo make fmt-check
+        run: cargo make check-fmt
   clippy:
     name: Clippy
     runs-on: [self-hosted, heavy]
@@ -32,7 +32,7 @@ jobs:
         with:
           command: install
           args: --debug cargo-make
-      - run: cargo make build-contracts
+      - run: cargo make contracts
       - name: Run Contract cargo clippy
         run: cargo make clippy
       - name: Run cargo clippy
@@ -49,4 +49,4 @@ jobs:
           command: install
           args: --debug cargo-make
       - name: Run yarn lint
-        run: cargo make yarn-check
+        run: cargo make check-contracts
