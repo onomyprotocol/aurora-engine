@@ -14,11 +14,6 @@ jobs:
     steps:
       - name: Clone the repository
         uses: actions/checkout@v2
-      - name: Install cargo-make
-        uses: actions-rs/cargo@v1
-        with:
-          command: install
-          args: --debug cargo-make
       - name: Restore cache
         run: |
           cache-util restore cargo_git cargo_registry sccache yarn_cache

@@ -11,11 +11,6 @@ jobs:
     steps:
       - name: Clone the repository
         uses: actions/checkout@v2
-      - name: Install cargo-make
-        uses: actions-rs/cargo@v1
-        with:
-          command: install
-          args: --debug cargo-make
       - run: cargo make engine-release
       - run: ls -lH bin/mainnet-release.wasm
       - name: Upload the mainnet-release.wasm artifact
@@ -38,11 +33,6 @@ jobs:
     steps:
       - name: Clone the repository
         uses: actions/checkout@v2
-      - name: Install cargo-make
-        uses: actions-rs/cargo@v1
-        with:
-          command: install
-          args: --debug cargo-make
       - run: cargo make engine-debug
       - run: ls -lH mainnet-debug.wasm
       - name: Upload the mainnet-debug.wasm artifact
@@ -65,11 +55,6 @@ jobs:
     steps:
       - name: Clone the repository
         uses: actions/checkout@v2
-      - name: Install cargo-make
-        uses: actions-rs/cargo@v1
-        with:
-          command: install
-          args: --debug cargo-make
       - run: cargo make engine-test
       - run: ls -lH mainnet-test.wasm
       - name: Upload the mainnet-test.wasm artifact
@@ -92,11 +77,6 @@ jobs:
     steps:
       - name: Clone the repository
         uses: actions/checkout@v2
-      - name: Install cargo-make
-        uses: actions-rs/cargo@v1
-        with:
-          command: install
-          args: --debug cargo-make
       - run: cargo make engine-bully
       - run: ls -lH mainnet-bully.wasm
       - name: Upload the mainnet-bully.wasm artifact
