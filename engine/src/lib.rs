@@ -489,6 +489,18 @@ mod contract {
     }
 
     #[no_mangle]
+    pub extern "C" fn fund_account() {
+        let mut io = Runtime;
+
+        let args = parameters::FundEthAccountCallArgs::try_from(
+            parse_json(&io.read_input().to_vec()).sdk_unwrap(),
+        )
+        .sdk_unwrap();
+
+        engine::add_balance(&mut io, &args.address, args.amount).sdk_unwrap();
+    }
+
+    #[no_mangle]
     pub extern "C" fn get_nonce() {
         let mut io = Runtime;
         let address = io.read_input_arr20().sdk_unwrap();
