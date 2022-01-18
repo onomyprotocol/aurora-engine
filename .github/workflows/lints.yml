@@ -11,18 +11,22 @@ name: Lints
 jobs:
   fmt:
     name: rustfmt
-    runs-on: [self-hosted, light]
+    runs-on: ubuntu-latest
     steps:
       - name: Clone the repository
         uses: actions/checkout@v2
+      - name: Add rustfmt
+        run: rustup component add rustfmt
       - name: Run cargo fmt
         run: cargo fmt --all -- --check
   clippy:
     name: Clippy
-    runs-on: [self-hosted, heavy]
+    runs-on: ubuntu-latest
     steps:
       - name: Clone the repository
         uses: actions/checkout@v2
+      - name: Add clippy
+        run: rustup component add clippy
       - run: make etc/eth-contracts/res/EvmErc20.bin
       - name: Run Contract cargo clippy
         run: cargo clippy --no-default-features --features=contract -- -D warnings
@@ -31,7 +35,7 @@ jobs:
 
   contracts:
     name: eth-contracts
-    runs-on: [self-hosted, light]
+    runs-on: ubuntu-latest
     steps:
       - name: Clone the repository
         uses: actions/checkout@v2

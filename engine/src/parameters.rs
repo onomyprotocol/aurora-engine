@@ -3,8 +3,8 @@ use crate::fungible_token::FungibleTokenMetadata;
 use crate::json::{JsonError, JsonValue};
 use crate::prelude::account_id::AccountId;
 use crate::prelude::{
-    format, Balance, BorshDeserialize, BorshSerialize, EthAddress, RawAddress, RawH256, RawU256,
-    String, ToString, TryFrom, Vec, WeiU256,
+    format, Address, Balance, BorshDeserialize, BorshSerialize, EthAddress, RawAddress, RawH256,
+    RawU256, String, ToString, TryFrom, Vec, Wei, WeiU256, U256,
 };
 use crate::proof::Proof;
 use aurora_engine_types::types::Fee;
@@ -493,6 +493,43 @@ impl TryFrom<JsonValue> for ResolveTransferCallArgs {
     }
 }
 
+pub struct FundEthAccountCallArgs {
+    pub address: Address,
+    pub amount: Wei,
+}
+
+impl TryFrom<JsonValue> for FundEthAccountCallArgs {
+    type Error = error::ParseTypeFromJsonError;
+
+    fn try_from(v: JsonValue) -> Result<Self, Self::Error> {
+        let string_address = &v.string("address")?;
+        if string_address.len() != 42 {
+            return Err(error::ParseTypeFromJsonError::Json(
+                JsonError::InvalidString,
+            ));
+        }
+
+        let address = match &hex::decode(&string_address[2..string_address.len()]) {
+            Ok(address) => Address::from_slice(address),
+            Err(_e) => {
+                return Err(error::ParseTypeFromJsonError::Json(
+                    JsonError::InvalidString,
+                ));
+            }
+        };
+
+        let u128_amount = match v.u128("amount") {
+            Ok(amount) => amount,
+            Err(_e) => {
+                return Err(error::ParseTypeFromJsonError::Json(JsonError::InvalidU128));
+            }
+        };
+        let amount = Wei::new(U256::try_from(u128_amount).unwrap());
+
+        Ok(Self { address, amount })
+    }
+}
+
 pub mod error {
     use crate::json::JsonError;
     use aurora_engine_types::account_id::ParseAccountError;
@@ -527,6 +564,7 @@ pub mod error {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::json::parse_json;
 
     #[test]
     fn test_view_call_fail() {
@@ -588,5 +626,21 @@ mod tests {
         let input_bytes = new_input.try_to_vec().unwrap();
         let parsed_data = CallArgs::deserialize(&input_bytes);
         assert_eq!(parsed_data, None);
+    }
+
+    #[test]
+    fn test_deserialize_fund_eth_account_call_args() {
+        let json_data = r#"{"address": "0x134c83de83d37c0c59860fa4a9433d026ca29ac8", "amount": "100000000000000000000000"}"#;
+        let args = FundEthAccountCallArgs::try_from(parse_json(json_data.as_bytes()).unwrap());
+        assert!(args.is_ok() && !args.is_err());
+        let args = args.ok().unwrap();
+        assert_eq!(
+            args.address,
+            Address::from_slice(&hex::decode("134c83de83d37c0c59860fa4a9433d026ca29ac8").unwrap())
+        );
+        assert_eq!(
+            args.amount,
+            Wei::new(U256::try_from(100_000_000000000000000000 as u128).unwrap())
+        );
     }
 }
