@@ -508,9 +508,23 @@ impl TryFrom<JsonValue> for FundEthAccountCallArgs {
                 JsonError::InvalidString,
             ));
         }
-        let address =
-            Address::from_slice(&hex::decode(&string_address[2..string_address.len()]).unwrap());
-        let amount = Wei::new(U256::try_from(v.u128("amount")?).unwrap());
+
+        let address = match &hex::decode(&string_address[2..string_address.len()]) {
+            Ok(address) => Address::from_slice(address),
+            Err(_e) => {
+                return Err(error::ParseTypeFromJsonError::Json(
+                    JsonError::InvalidString,
+                ));
+            }
+        };
+
+        let u128_amount = match v.u128("amount") {
+            Ok(amount) => amount,
+            Err(_e) => {
+                return Err(error::ParseTypeFromJsonError::Json(JsonError::InvalidU128));
+            }
+        };
+        let amount = Wei::new(U256::try_from(u128_amount).unwrap());
 
         Ok(Self { address, amount })
     }
