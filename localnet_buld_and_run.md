@@ -1,11 +1,11 @@
 * Build
 ```
-docker build -t onomy/aurora-engine-local --progress=plain --network=host -f localnet.Dockerfile .
+docker build -t onomy/aurora-engine-local:local --progress=plain --network=host -f localnet.Dockerfile .
 ```
 
 * Run
 ```
-docker run -p 3030:3030 --name aurora-engine-local -it onomy/aurora-engine-local
+docker run -p 3030:3030 --name aurora-engine-local -it onomy/aurora-engine-local:local
 ```
 
 * Login to the container
@@ -51,5 +51,5 @@ near call aurora.node0 fund_account '{"address": "0x134c83de83d37c0c59860fa4a943
     --accountId aurora.node0 --keyPath /root/.near-credentials/local/aurora.node0.json
 
 aurora get-balance 0x134c83de83d37c0c59860fa4a9433d026ca29ac8
-
+aurora get-nonce 0x134c83de83d37c0c59860fa4a9433d026ca29ac8
 ```
