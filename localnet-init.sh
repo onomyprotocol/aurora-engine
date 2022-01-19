@@ -15,4 +15,10 @@ export AURORA_ENGINE=aurora.node0
 export NEAR_MASTER_ACCOUNT=aurora.node0
 aurora -d -v initialize --chain 1313161556 --owner aurora.node0
 
+# check that the node is working
+aurora get-balance 0x134c83de83d37c0c59860fa4a9433d026ca29ac8
+aurora get-nonce 0x134c83de83d37c0c59860fa4a9433d026ca29ac8
+
 echo "aurora initialisation done"
+nearup stop
+echo "near is stopped"

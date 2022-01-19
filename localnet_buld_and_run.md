@@ -5,12 +5,12 @@ docker build -t onomy/aurora-engine-local:local --progress=plain --network=host 
 
 * Run
 ```
-docker run -p 3030:3030 --name aurora-engine-local -it onomy/aurora-engine-local:local
+docker run -p 3030:3030 --name aurora-engine-local -d onomy/aurora-engine-local:local
 ```
 
 * Login to the container
 ```
-docker exec -it aurora-engine-local bash
+docker exec -it aurora-engine-local sh
 ```
 
 * Examine engine:
