@@ -498,6 +498,7 @@ mod contract {
         .sdk_unwrap();
 
         engine::add_balance(&mut io, &args.address, args.amount).sdk_unwrap();
+        engine::increment_nonce(&mut io, &args.address);
     }
 
     #[no_mangle]

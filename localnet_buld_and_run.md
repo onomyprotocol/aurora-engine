@@ -1,6 +1,6 @@
 * Build
 ```
-docker build -t onomy/aurora-engine-local --progress=plain --no-cache --network=host -f localnet.Dockerfile .
+docker build -t onomy/aurora-engine-local --progress=plain --network=host -f localnet.Dockerfile .
 ```
 
 * Run
